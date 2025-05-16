@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Price Prediction</title>
+    <style>
+        body {
+            background-image: url('https://cdn.pixabay.com/photo/2021/12/08/06/00/house-6854788_1280.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            color: white;
+        }
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        form {
+            background-color: rgba(0, 0, 0, 0.7); /* Black transparent */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            color: white; /* White text */
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        input {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function showResultPage(data) {
+            let newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <html>
+                <head>
+                    <title>Prediction Result</title>
+                    <style>
+                        body {
+                            background-image: url('https://cdn.pixabay.com/photo/2021/12/08/06/00/house-6854788_1280.png');
+                            background-size: cover;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            background-attachment: fixed;
+                            font-family: 'Poppins', sans-serif;
+                            text-align: center;
+                            color: white;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100vh;
+                        }
+                        .result-container {
+                            background-color: rgba(0, 0, 0, 0.7); /* Ensuring black transparent remains */
+                            padding: 20px;
+                            border-radius: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class='result-container'>
+                        <h2>Estimated Price: ${data["Predicted Price"]}</h2>
+                        ${data["Similar Properties"] ? `<h3>Similar Properties You May Like:</h3><ul>${data["Similar Properties"].map(property => `<li>${property.property_type}, ${property.size_sqft} sqft, ${property.price} - ${property.location}</li>`).join('')}</ul>` : ''}
+                    </div>
+                </body>
+                </html>
+            `);
+        }
+
+        async function predictPrice(event) {
+            event.preventDefault();
+            let formData = new FormData(document.getElementById("predictionForm"));
+            let response = await fetch("/predict", { method: "POST", body: formData });
+            let data = await response.json();
+            showResultPage(data);
+        }
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <form id="predictionForm" onsubmit="predictPrice(event)">
+            <h2>Real Estate Price Prediction</h2>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required placeholder="Enter location">
+
+            <label for="property_type">Property Type:</label>
+            <input type="text" id="property_type" name="property_type" required placeholder="E.g. Apartment, Villa">
+
+            <label for="size_sqft">Size (sqft):</label>
+            <input type="number" id="size_sqft" name="size_sqft" required placeholder="Enter size in sqft">
+
+            <label for="bedrooms">Bedrooms:</label>
+            <input type="number" id="bedrooms" name="bedrooms" required placeholder="Enter number of bedrooms">
+
+            <label for="bathrooms">Bathrooms:</label>
+            <input type="number" id="bathrooms" name="bathrooms" required placeholder="Enter number of bathrooms">
+
+            <label for="balconies">Balconies:</label>
+            <input type="number" id="balconies" name="balconies" required placeholder="Enter number of balconies">
+
+            <label for="furnishing_status">Furnishing Status:</label>
+            <input type="text" id="furnishing_status" name="furnishing_status" required placeholder="E.g. Furnished, Unfurnished">
+
+            <button type="submit">Predict Price</button>
+        </form>
+    </div>
+</body>
+</html>
